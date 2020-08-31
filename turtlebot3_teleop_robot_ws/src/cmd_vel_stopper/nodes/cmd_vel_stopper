@@ -1,0 +1,53 @@
+#!/usr/bin/env python
+import io
+import sys
+import rospy
+from sensor_msgs.msg import Joy
+from geometry_msgs.msg import Twist, Vector3
+import json
+import subprocess
+import time
+import threading
+
+joy_received_time = 0
+lock = threading.Lock()
+
+def callback(msg):
+    global joy_received_time
+    global lock
+    lock.acquire()
+    joy_received_time = time.time()
+    lock.release()
+
+def publisher(check_rate, fail_safe_threshold):
+    global joy_received_time
+    global lock
+    processed = 0
+    pub = rospy.Publisher('/cmd_vel', Twist, queue_size = 10)
+    r = rospy.Rate(check_rate)
+    while not rospy.is_shutdown():
+        lock.acquire()
+        now = time.time()
+        if (processed != joy_received_time and now - joy_received_time > fail_safe_threshold):
+            rospy.logerr("current time {}, joy message received time: {}, diff {}: ".format(now, joy_received_time, joy_received_time - now))
+            processed = joy_received_time
+            msg = Twist(Vector3(0,0,0), Vector3(0,0,0))
+            pub.publish(msg)
+        lock.release()
+        r.sleep()
+    
+
+def cmd_vel_stopper():
+    rospy.init_node('cmd_vel_stopper', anonymous=True)
+    rospy.Subscriber('/teleop/intdash_joy', Joy, callback)
+
+    check_rate = int(sys.argv[1])
+    fail_safe_threshold = float(sys.argv[2])
+
+    publisher(check_rate, fail_safe_threshold)
+
+
+    rospy.spin()
+
+if __name__ == '__main__':
+    cmd_vel_stopper()

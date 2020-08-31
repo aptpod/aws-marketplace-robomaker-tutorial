@@ -1,0 +1,16 @@
+<launch>
+    <arg name="fifo_path" default=""/>
+    <arg name="basetime_lib_path" default="/opt/vm2m/lib/libbasetime.so"/>
+    <arg name="basetime_path" default="/tmp/opt/vm2m/var/run/intdash/basetime"/>
+    <arg name="scan_topic_name" default="scan"/>
+    <arg name="odom_topic_name" default="odom"/>
+    
+    
+    <node pkg="converter" type="converter_node" name="converter_node" output="screen">
+        <param name="fifo_path" value="$(arg fifo_path)"/>
+        <param name="scan_topic_name" value="$(arg scan_topic_name)"/>
+        <param name="odom_topic_name" value="$(arg odom_topic_name)"/>
+        <param name="basetime_lib_path" value="$(arg basetime_lib_path)"/>
+        <param name="basetime_path" value="$(arg basetime_path)"/>
+    </node>
+</launch>

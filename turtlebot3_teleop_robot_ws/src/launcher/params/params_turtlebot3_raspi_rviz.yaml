@@ -1,0 +1,18 @@
+incoming:
+  enabled: true
+  queue_size: 100                    # publisher queue size
+  suffix: ""                         # topic name suffix
+
+outgoing:
+  enabled: true
+  max_array_size: 400                # In JSON mode, skip arrays larger than this size (maps, images, etc.)
+  topics:
+  - topic_name: "/odom"
+    send_mode: "raw"
+    queue_size: 100
+  - topic_name: "/scan"
+    send_mode: "raw"
+    queue_size: 100
+  - topic_name: "/tf"
+    send_mode: "raw"
+    queue_size: 100

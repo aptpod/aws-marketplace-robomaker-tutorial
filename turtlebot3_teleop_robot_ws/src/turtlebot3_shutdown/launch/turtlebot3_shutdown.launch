@@ -1,0 +1,5 @@
+<launch>
+    <arg name="is_dummy" default="1"/>
+    <node pkg="turtlebot3_shutdown" type="turtlebot3_shutdown" name="turtlebot3_shutdown" output="screen" args="$(arg is_dummy)">
+    </node>
+</launch>

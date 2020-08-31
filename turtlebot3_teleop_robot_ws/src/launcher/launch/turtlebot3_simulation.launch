@@ -1,0 +1,64 @@
+<launch>
+  <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [waffle, waffle_pi]"/>
+  <arg name="open_rviz" default="false"/>
+  <arg name="fail_safe_threshold" value="$(optenv FAIL_SAFE_THRESHOLD 0.2)"/>
+  <arg name="intdash_working_dir" default="$(env HOME)/intdash"/>
+
+  <!-- intdash edge wrapper for x86_64 -->
+  <include file="$(find intdash_edge_wrapper)/launch/intdash_edge_wrapper.launch">
+    <arg name="intdash_edge_path" value="$(find intdash_edge)"/>
+    <arg name="manager_conf_file" value="manager.conf"/>
+    <arg name="intdash_working_dir" value="$(env HOME)/intdash"/>
+    <arg name="aws_secrets_manager_secret_name" value="intdash-robomaker-sample-simulation"/>
+  </include>
+
+  <node pkg="teleop_twist_joy" name="teleop_twist_joy" type="teleop_node">
+    <remap from="joy" to="/teleop/intdash_joy"/>
+    <rosparam command="load" file="$(find launcher)/config/ps3.config.yaml" />
+  </node>
+
+  <include file="$(find turtlebot3_slam)/launch/turtlebot3_slam.launch">
+    <arg name="open_rviz" value="$(arg open_rviz)"/>
+  </include>
+  <node pkg="hector_compressed_map_transport" type="map_to_image_node" name="map_to_image_node" output="screen"/>
+
+  <include file="$(find jpeghook_cpp)/launch/jpeghook.launch">
+    <arg name="node_name" value="jpeghook_map"/>
+    <arg name="topic" value="map_image/full/compressed"/>
+    <arg name="fifo_path" value="$(arg intdash_working_dir)/opt/vm2m/var/run/intdash/logger_003.tx"/>
+    <arg name="basetime_path" value="$(arg intdash_working_dir)/opt/vm2m/var/run/intdash/basetime"/>
+    <arg name="basetime_lib_path" value="$(arg intdash_working_dir)/opt/vm2m/lib/libbasetime.so"/>
+  </include>
+
+  <include file="$(find jpeghook_cpp)/launch/jpeghook.launch">
+    <arg name="node_name" value="jpeghook_camera"/>
+    <arg name="topic" value="camera/rgb/image_raw/compressed"/>
+    <arg name="fifo_path" value="$(arg intdash_working_dir)/opt/vm2m/var/run/intdash/logger_004.tx"/>
+    <arg name="basetime_path" value="$(arg intdash_working_dir)/opt/vm2m/var/run/intdash/basetime"/>
+    <arg name="basetime_lib_path" value="$(arg intdash_working_dir)/opt/vm2m/lib/libbasetime.so"/>
+  </include>
+
+  <include file="$(find teleop_reader_cpp)/launch/teleop_reader_cpp_node.launch">
+    <arg name="fifo_path" value="$(arg intdash_working_dir)/opt/vm2m/var/run/intdash/logger_001.rx"/>
+  </include>
+
+
+  <include file="$(find intdash_bridge)/launch/intdash_bridge.launch">
+    <arg name="paramsfile" value="$(find launcher)/params/params_turtlebot3.yaml" />
+  </include>
+
+  <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="laser_filter" output="screen" >
+    <rosparam command="load" file="$(find launcher)/config/scan_data_filter.yaml" />
+  </node>
+  <rosparam command="load" file="$(find launcher)/config/scan_data_filter.yaml" />
+
+  <include file="$(find cmd_vel_stopper)/launch/cmd_vel_stopper.launch">
+    <arg name="is_om_with_tb3" value="0"/>
+    <arg name="fail_safe_threshold" value="$(arg fail_safe_threshold)"/>
+  </include>
+  <include file="$(find scan_converter)/launch/scan_converter.launch">
+        <arg name="scan_topic_name" value="scan_filtered"/>
+  </include>
+  <include file="$(find odom_converter)/launch/odom_converter.launch">
+  </include>
+</launch>

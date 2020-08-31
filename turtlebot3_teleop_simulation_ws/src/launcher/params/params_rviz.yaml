@@ -1,0 +1,12 @@
+incoming:
+  enabled: true
+  queue_size: 100                    # publisher queue size
+  suffix: ""                         # topic name suffix
+
+outgoing:
+  enabled: true
+  max_array_size: 400                # In JSON mode, skip arrays larger than this size (maps, images, etc.)
+  topics:
+  - topic_name: "/cmd_vel"
+    send_mode: "raw"
+    queue_size: 100

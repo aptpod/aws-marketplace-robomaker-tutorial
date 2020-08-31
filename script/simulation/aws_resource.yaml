@@ -1,0 +1,122 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  IntdashRoboMakerSampleVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      Tags:
+        - Key: Name
+          Value: IntdashRoboMakerSampleVPC
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: IntdashRoboMakerSampleVPC-IGW
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref IntdashRoboMakerSampleVPC
+      InternetGatewayId: !Ref InternetGateway
+  RouteTable:
+    Type: AWS::EC2::RouteTable
+    DependsOn: AttachGateway
+    Properties:
+      VpcId: !Ref IntdashRoboMakerSampleVPC
+      Tags:
+        - Key: Name
+          Value: IntdashRoboMakerSampleVPC-Route
+  Route:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref RouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+  IntdashRoboMakerSampleSubnet1:
+    Type: AWS::EC2::Subnet
+    DependsOn: AttachGateway
+    Properties:
+      AvailabilityZone: !Select [ 0, !GetAZs  '' ]
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+      VpcId: !Ref IntdashRoboMakerSampleVPC
+      Tags:
+        - Key: Name
+          Value: IntdashRoboMakerSampleVPC-Subnet1
+  Subnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref IntdashRoboMakerSampleSubnet1
+      RouteTableId: !Ref RouteTable
+  IntdashRoboMakerSampleSubnet2:
+    Type: AWS::EC2::Subnet
+    DependsOn: AttachGateway
+    Properties:
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: !Select [ 1, !GetAZs  '' ]
+      MapPublicIpOnLaunch: true
+      VpcId: !Ref IntdashRoboMakerSampleVPC
+      Tags:
+        - Key: Name
+          Value: IntdashRoboMakerSampleVPC-Subnet2
+  Subnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref IntdashRoboMakerSampleSubnet2
+      RouteTableId: !Ref RouteTable
+      
+  IntdashRoboMakerSampleS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: True
+        BlockPublicPolicy: True
+        IgnorePublicAcls: True
+        RestrictPublicBuckets: True
+  
+  IntdashRoboMakerSampleRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: IntdashRoboMakerSampleRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          -
+            Effect: Allow
+            Principal:
+              Service:
+                - robomaker.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/CloudWatchFullAccess'
+        - 'arn:aws:iam::aws:policy/AWSRoboMakerFullAccess'
+        - 'arn:aws:iam::aws:policy/AmazonS3FullAccess'
+        - 'arn:aws:iam::aws:policy/SecretsManagerReadWrite'
+
+Outputs: 
+    VPC: 
+        Description: A reference to the created VPC
+        Value: !Ref IntdashRoboMakerSampleVPC
+
+    DefaultSecurityGroupID: 
+        Description: The default security group created with the VPC
+        Value: !GetAtt IntdashRoboMakerSampleVPC.DefaultSecurityGroup
+
+    IntdashRoboMakerSampleSubnet1:
+        Description: A reference to the public subnet in the 1st Availability Zone
+        Value: !Ref IntdashRoboMakerSampleSubnet1
+
+    IntdashRoboMakerSampleSubnet2:
+        Description: A reference to the public subnet in the 2nd Availability Zone
+        Value: !Ref IntdashRoboMakerSampleSubnet2
+
+    IntdashRoboMakerS3BucketName:
+        Value: !Ref IntdashRoboMakerSampleS3Bucket
+        
+    IntdashRoboMakerSampleRole:
+        Value: !Ref IntdashRoboMakerSampleRole
+        

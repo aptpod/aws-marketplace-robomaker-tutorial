@@ -1,0 +1,67 @@
+File turtlebot3_manipulation/.git is a directory while file open_manipulator_with_tb3/.git is a regular file
+Only in turtlebot3_manipulation: .gitignore
+diff -rc turtlebot3_manipulation/open_manipulator_with_tb3_description/urdf/open_manipulator_with_tb3.gazebo.xacro open_manipulator_with_tb3/open_manipulator_with_tb3_description/urdf/open_manipulator_with_tb3.gazebo.xacro
+*** turtlebot3_manipulation/open_manipulator_with_tb3_description/urdf/open_manipulator_with_tb3.gazebo.xacro	2020-08-20 02:31:46.279024740 +0000
+--- open_manipulator_with_tb3/open_manipulator_with_tb3_description/urdf/open_manipulator_with_tb3.gazebo.xacro	2020-08-04 06:34:18.294594497 +0000
+***************
+*** 46,51 ****
+--- 46,52 ----
+        <robotNamespace>om_with_tb3</robotNamespace>
+        <controlPeriod>0.001</controlPeriod>
+        <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
++       <legacyModeNS>true</legacyModeNS>
+      </plugin>
+    </gazebo>
+  
+Only in turtlebot3_manipulation: open_manipulator_with_tb3_msgs
+diff -rc turtlebot3_manipulation/open_manipulator_with_tb3_tools/launch/slam.launch open_manipulator_with_tb3/open_manipulator_with_tb3_tools/launch/slam.launch
+*** turtlebot3_manipulation/open_manipulator_with_tb3_tools/launch/slam.launch	2020-08-20 02:31:46.283024638 +0000
+--- open_manipulator_with_tb3/open_manipulator_with_tb3_tools/launch/slam.launch	2020-08-04 06:34:18.294594497 +0000
+***************
+*** 5,11 ****
+    <arg name="use_platform"	   default="true" />
+  
+    <arg name="scan_topic"     default="scan_filtered"/>
+!   <arg name="open_rviz"      default="true" />
+  
+    <group ns = "$(arg use_robot_name)">
+      <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="laser_filter" output="screen" >
+--- 5,11 ----
+    <arg name="use_platform"	   default="true" />
+  
+    <arg name="scan_topic"     default="scan_filtered"/>
+!   <arg name="open_rviz"      default="false" />
+  
+    <group ns = "$(arg use_robot_name)">
+      <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="laser_filter" output="screen" >
+diff -rc turtlebot3_manipulation/open_manipulator_with_tb3_tools/maps/map.yaml open_manipulator_with_tb3/open_manipulator_with_tb3_tools/maps/map.yaml
+*** turtlebot3_manipulation/open_manipulator_with_tb3_tools/maps/map.yaml	2020-08-20 02:31:46.283024638 +0000
+--- open_manipulator_with_tb3/open_manipulator_with_tb3_tools/maps/map.yaml	2020-08-04 06:34:18.294594497 +0000
+***************
+*** 1,4 ****
+! image: /home/darby/maps/turtlebot3_rooms/map.pgm # Need to change path when you use it
+  resolution: 0.050000
+  origin: [-10.000000, -10.000000, 0.000000]
+  negate: 0
+--- 1,4 ----
+! image: /home/ubuntu/environment/repos/aws-robomaker-demonstration/openmanipulator_ws/src/open_manipulator_with_tb3/open_manipulator_with_tb3_tools/maps/map.pgm # Need to change path when you use it
+  resolution: 0.050000
+  origin: [-10.000000, -10.000000, 0.000000]
+  negate: 0
+diff -rc turtlebot3_manipulation/open_manipulator_with_tb3_waffle_pi_moveit/launch/joystick_control.launch open_manipulator_with_tb3/open_manipulator_with_tb3_waffle_pi_moveit/launch/joystick_control.launch
+*** turtlebot3_manipulation/open_manipulator_with_tb3_waffle_pi_moveit/launch/joystick_control.launch	2020-08-20 02:31:46.283024638 +0000
+--- open_manipulator_with_tb3/open_manipulator_with_tb3_waffle_pi_moveit/launch/joystick_control.launch	2020-08-04 06:34:18.298594290 +0000
+***************
+*** 12,17 ****
+--- 12,20 ----
+    </node>
+  
+    <!-- Launch python interface -->
++ <!--
++ 
+    <node pkg="moveit_ros_visualization" type="moveit_joy.py" output="screen" name="moveit_joy"/>
++ -->
+  
+  </launch>
+Only in turtlebot3_manipulation: .travis.yml
+Only in open_manipulator_with_tb3: turtlebot3_manipulation

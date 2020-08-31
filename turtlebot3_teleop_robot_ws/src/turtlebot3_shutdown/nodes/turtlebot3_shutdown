@@ -1,0 +1,62 @@
+#!/usr/bin/env python
+import io
+import sys
+import rospy
+from std_msgs.msg import Float64MultiArray
+from sensor_msgs.msg import Joy
+import json
+import subprocess
+
+select_pushed = 0
+select_pushed_time=0
+is_dummy=True
+
+def callback(msg):
+    global select_pushed
+    global select_pushed_time
+    global is_dummy
+    
+    select = msg.buttons[0]
+    if (select_pushed == 0):
+        if (select):
+            select_pushed = 1
+            select_pushed_time = msg.header.stamp.secs
+    elif (select_pushed == 1):
+        if (not select):
+            select_pusehd = 0
+            select_pushed_time = 0
+        elif (msg.header.stamp.secs > select_pushed_time+5):
+            res = subprocess.Popen(["rostopic","pub","/sound","turtlebot3_msgs/Sound","--","3"])
+            select_pushed = 2
+    elif (select_pushed == 2):
+        if (not select):
+            select_pushed = 0
+            select_pushed_time = 0
+        elif (msg.header.stamp.secs > select_pushed_time + 10):
+            select_pushed = 3
+            if (is_dummy == 1):
+                rospy.loginfo("turtlebot3_shutdown: shutdown command (dummy) is published")
+            else:
+                try:
+                    res = subprocess.check_output(["/usr/bin/sudo", '/sbin/shutdown', 'now'], stderr=subprocess.STDOUT)
+                    rospy.loginfo("result of shutdown command: {}".format(res))
+                except subprocess.CalledProcessError as e:
+                    rospy.loginfo(e.returncode)
+                    rospy.loginfo(e.cmd)
+                    rospy.loginfo(e.output)
+
+
+def turtlebot3_shutdown():
+    global is_dummy
+    rospy.init_node('turtlebot3_shutdown', anonymous=True)
+
+    print(sys.argv)
+
+    args = sys.argv
+    is_dummy = int(args[1])
+
+    rospy.Subscriber('/teleop/intdash_joy', Joy, callback)
+    rospy.spin()
+
+if __name__ == '__main__':
+    turtlebot3_shutdown()

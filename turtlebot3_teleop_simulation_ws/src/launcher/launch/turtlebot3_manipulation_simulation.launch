@@ -1,0 +1,4 @@
+<launch>
+  <include file="$(find open_manipulator_with_tb3_gazebo)/launch/rooms.launch">
+  </include>
+</launch>

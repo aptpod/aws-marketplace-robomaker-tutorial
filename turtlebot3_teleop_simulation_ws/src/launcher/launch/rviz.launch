@@ -1,0 +1,14 @@
+<launch>
+  <arg name="intdash_working_dir" value="$(env HOME)/intdash"/>
+
+  <include file="$(find intdash_edge_wrapper)/launch/intdash_edge_wrapper.launch">
+    <arg name="intdash_edge_path" value="$(find intdash_edge)"/>
+    <arg name="manager_conf_file" value="manager.conf"/>
+    <arg name="intdash_working_dir" value="$(env HOME)/intdash"/>
+    <arg name="aws_secrets_manager_secret_name" value="intdash-robomaker-sample-rviz"/>
+  </include>
+
+  <include file="$(find intdash_bridge)/launch/intdash_bridge.launch">
+    <arg name="paramsfile" value="$(find launcher)/params/params_rviz.yaml" />
+  </include>
+</launch>

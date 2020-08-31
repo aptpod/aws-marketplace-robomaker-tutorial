@@ -1,0 +1,5 @@
+<launch>
+  <include file="$(find launcher)/launch/turtlebot3_raspi_intdash_bridge.launch">
+    <arg name="intdash_bridge_params" value="$(find launcher)/params/params_turtlebot3_raspi_rviz.yaml" />
+  </include>
+</launch>

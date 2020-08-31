@@ -1,0 +1,14 @@
+<launch>
+    <arg name="node_name" default="jpeghook"/>
+    <arg name="fifo_path" default=""/>
+    <arg name="basetime_lib_path" default="/opt/vm2m/lib/libbasetime.so"/>
+    <arg name="basetime_path" default="/tmp/opt/vm2m/var/run/intdash/basetime"/>
+    <arg name="topic" default="image"/>
+
+    <node pkg="jpeghook_cpp" type="jpeghook_cpp_node" name="$(arg node_name)" output="screen">
+        <param name="topic" value="$(arg topic)"/>
+        <param name="fifo_path" value="$(arg fifo_path)"/>
+        <param name="basetime_lib_path" value="$(arg basetime_lib_path)"/>
+        <param name="basetime_path" value="$(arg basetime_path)"/>
+    </node>
+</launch>

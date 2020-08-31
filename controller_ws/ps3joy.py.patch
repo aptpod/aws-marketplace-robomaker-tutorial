@@ -1,0 +1,11 @@
+--- original.py	2020-08-18 11:08:23.159661486 +0900
++++ modified.py	2020-08-18 11:09:04.932470400 +0900
+@@ -191,6 +191,8 @@ class decoder:
+                     out.append(int((curbyte & (1 << k)) != 0))
+             out = out + data
+             self.joy.update(out)
++            with open("/tmp/ps3joy.bin", "wb") as ds3pipe:
++                ds3pipe.write(struct.pack("{}H".format(len(out)), *out))
+             axis_motion = [
+                 abs(out[17:][i] - self.axmid[i]) > 20 for i in range(0, len(out)-17-4)
+             ]  # 17 buttons, 4 inertial sensors

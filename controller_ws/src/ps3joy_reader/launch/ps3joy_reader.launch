@@ -1,0 +1,9 @@
+<launch> 
+    <arg name="fifo_path"  default="/tmp/opt/vm2m/var/run/intdash/logger_001.rx"/>
+    <arg name="use_custom_logger"  default="false"/>
+
+    <node pkg="ps3joy_reader" type="ps3joy_reader_node" name="ps3joy_reader_node" output="screen">
+        <param name="fifo_path" value="$(arg fifo_path)"/>
+        <param name="use_custom_logger" value="$(arg use_custom_logger)" />
+    </node>
+</launch>
