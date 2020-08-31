@@ -1,0 +1,6 @@
+<launch>
+    <arg name="odom_topic_name" default="odom"/>
+    <node pkg="odom_converter" type="odom_converter_node" name="odom_converter_node" output="screen">
+        <param name="odom_topic_name" value="$(arg odom_topic_name)"/>
+    </node>
+</launch>

@@ -1,0 +1,19 @@
+<launch>
+  <arg name="intdash_edge_path" default=""/>
+  <arg name="manager_conf_file" default="manager.conf"/>
+  <arg name="intdash_working_dir" default="$(optenv HOME ggc_user)/intdash"/>
+  <arg name="aws_secrets_manager_secret_name" default=""/>
+  <env name="LD_LIBRARY_PATH" value="$(env LD_LIBRARY_PATH):$(arg intdash_working_dir)/opt/vm2m/lib"/>
+
+
+  <env name="INTDASH_EDGE_BINDIR"  value="$(arg intdash_working_dir)/opt/vm2m/bin"/>
+  <env name="INTDASH_EDGE_CONFDIR" value="$(arg intdash_working_dir)/opt/vm2m/etc"/>
+  <env name="INTDASH_EDGE_SBINDIR" value="$(arg intdash_working_dir)/opt/vm2m/sbin"/>
+  <env name="INTDASH_EDGE_LIBDIR"  value="$(arg intdash_working_dir)/opt/vm2m/lib"/>
+  <env name="INTDASH_EDGE_RUNDIR"  value="$(arg intdash_working_dir)/opt/vm2m/var/run"/>
+  <env name="INTDASH_EDGE_APPDIR"  value="$(arg intdash_working_dir)/opt/vm2m/var/lib"/>
+
+  <node pkg="intdash_edge_wrapper" type="intdash_edge_wrapper" name="intdash_edge_wrapper" output="screen"
+   args="$(arg intdash_edge_path) $(arg manager_conf_file) $(arg intdash_working_dir) $(arg aws_secrets_manager_secret_name)"
+  />
+</launch>

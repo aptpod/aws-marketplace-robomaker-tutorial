@@ -1,0 +1,22 @@
+#!/bin/bash
+
+cd src
+git clone https://github.com/ROBOTIS-GIT/turtlebot3_manipulation.git
+cd turtlebot3_manipulation
+git checkout -b om_with_tb3_devel origin/om_with_tb3_devel 
+cd ../
+patch -p0  < ../open_manipulator_with_tb3.patch
+mv turtlebot3_manipulation open_manipulator_with_tb3
+git clone https://github.com/ROBOTIS-GIT/turtlebot3_manipulation.git
+cd ../
+
+cd src
+git clone https://github.com/ROBOTIS-GIT/turtlebot3_manipulation_simulations.git
+cd turtlebot3_manipulation_simulations
+git checkout -b kinetic-devel origin/kinetic-devel
+cd ../
+patch -p0  < ../open_manipulator_with_tb3_simulations.patch
+mv turtlebot3_manipulation_simulations open_manipulator_with_tb3_simulations
+git clone https://github.com/ROBOTIS-GIT/turtlebot3_manipulation_simulations.git
+cd ../
+

@@ -1,0 +1,16 @@
+{
+  "type": "mjpeg",
+  "data_handler": {
+    "path": "/dev/video0",
+    "baudrate": 5,
+    "camera_width":  640,
+    "camera_height": 480,
+    "camera_hwencodedelay_msec": 100
+  },
+  "manager_client": {
+    "tx_path": "$RUNDIR/intdash/logger_004.tx",
+    "rx_path": "$RUNDIR/intdash/logger_004.rx"
+  },
+  "status": "$RUNDIR/intdash/logger_004.stat",
+  "basetime": "$RUNDIR/intdash/basetime"
+}

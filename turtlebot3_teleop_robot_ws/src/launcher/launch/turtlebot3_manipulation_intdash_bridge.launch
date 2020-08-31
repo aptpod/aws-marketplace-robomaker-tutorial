@@ -1,0 +1,60 @@
+<launch>
+  <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [waffle, waffle_pi]"/>
+  <arg name="fail_safe_threshold" value="$(optenv FAIL_SAFE_THRESHOLD 0.2)"/>
+  <arg name="manager_conf" value="$(optenv MANAGER_CONF manager.conf)"/>
+  <arg name="intdash_working_dir" default="/home/ggc_user/intdash"/>
+
+  <include file="$(find launcher)/launch/turtlebot3_serial_server.launch">
+    <arg name="multi_robot_name" value=""/>
+    <arg name="set_lidar_frame_id" value="/base_scan"/>
+  </include>
+
+
+  <include file="$(find converter)/launch/converter.launch">
+    <arg name="basetime_path" value="$(arg intdash_working_dir)/opt/vm2m/var/run/intdash/basetime"/>
+    <arg name="basetime_lib_path" value="$(arg intdash_working_dir)/opt/vm2m/lib/libbasetime.so"/>
+    <arg name="fifo_path" value="$(arg intdash_working_dir)/opt/vm2m/var/run/intdash/logger_005.tx"/>
+    <arg name="scan_topic_name" value="scan_filtered"/>
+  </include>
+
+  <include file="$(find teleop_reader_cpp)/launch/teleop_reader_cpp_node.launch">
+    <arg name="fifo_path" value="$(arg intdash_working_dir)/opt/vm2m/var/run/intdash/logger_001.rx"/>
+  </include>
+
+  <!-- activate teleop_twist_joy -->
+  <node pkg="teleop_twist_joy" name="teleop_twist_joy" type="teleop_node">
+    <remap from="joy" to="/teleop/intdash_joy"/>
+    <rosparam command="load" file="$(find launcher)/config/ps3.config.yaml" />
+  </node>
+  <node pkg="teleop_arm_node" name="teleop_arm_node" type="teleop_arm_node">
+    <param name="control_mode" value="$(optenv CONTROL_MODE JOY)" />
+  </node>
+
+  <!-- intdash edge wrapper for raspi -->
+  <include file="$(find intdash_edge_wrapper)/launch/intdash_edge_wrapper.launch">
+    <arg name="intdash_edge_path" value="$(find intdash_edge_raspi)"/>
+    <arg name="manager_conf_file" value="$(arg manager_conf)"/>
+    <arg name="intdash_working_dir" value="$(arg intdash_working_dir)"/>
+    <arg name="aws_secrets_manager_secret_name" value="intdash-robomaker-sample-raspi"/>
+  </include>
+
+
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find open_manipulator_with_tb3_description)/urdf/open_manipulator_with_tb3_$(arg model).urdf.xacro'"/>
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen">
+     <param name="publish_frequency" type="double" value="100.0" />
+  </node>
+
+  <include file="$(find turtlebot3_shutdown)/launch/turtlebot3_shutdown.launch">
+    <arg name="is_dummy" value="0"/>
+  </include>
+
+  <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="laser_filter" output="screen" >
+    <rosparam command="load" file="$(find launcher)/config/scan_data_filter.yaml" />
+  </node>
+  <rosparam command="load" file="$(find launcher)/config/scan_data_filter.yaml" />
+
+  <include file="$(find cmd_vel_stopper)/launch/cmd_vel_stopper.launch">
+    <arg name="is_om_with_tb3" value="0"/>
+    <arg name="fail_safe_threshold" value="$(arg fail_safe_threshold)"/>
+  </include>
+</launch>

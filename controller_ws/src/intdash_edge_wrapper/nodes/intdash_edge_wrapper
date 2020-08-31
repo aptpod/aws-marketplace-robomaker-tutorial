@@ -1,0 +1,155 @@
+#!/usr/bin/env python
+import boto3
+from botocore.exceptions import ClientError
+
+import glob
+import json
+import os
+import rospy
+import socket
+import sys
+import subprocess
+import time
+import shutil
+import ast
+from subprocess import Popen
+
+def get_secret_from_aws_secrets_manager(secret_name):
+    secret_name = secret_name
+    region_name = "ap-northeast-1"
+    session = boto3.session.Session()
+    client = session.client(service_name = 'secretsmanager', region_name=region_name)
+    try:
+        str = client.get_secret_value(SecretId=secret_name)
+        secret = ast.literal_eval(str['SecretString'])
+        if ("dst_id" in secret):
+            secret['dst_id'] = parse_dst_id(secret['dst_id'])
+        return secret
+    except ClientError as e:
+        if e.response['Error']['Code'] == 'ResourceNotFoundException':
+            rospy.logerr("The requested secret " + secret_name + " was not found")
+        elif e.response['Error']['Code'] == 'InvalidRequestException':
+            rospy.logerr("The request was invalid due to:", e)
+        elif e.response['Error']['Code'] == 'InvalidParameterException':
+            rospy.logerr("The request had invalid params:", e)
+        return None
+    except Exception as e:
+        rospy.logerr("exception in get_secret_from_aws_secrets_manager: {}".format(e))
+        return None
+
+def parse_dst_id(dst_id_string):
+    if (dst_id_string == ""):
+        return []
+    else:
+        return dst_id_string.split(",")
+
+def get_secret_from_environment_value():
+    edge_host =  os.environ['INTDASH_EDGE_HOST']
+    edge_id =    os.environ['INTDASH_EDGE_ID']
+    edge_token = os.environ['INTDASH_EDGE_TOKEN']
+    ctlr_id = os.getenv("INTDASH_EDGE_CTLR_ID", "")
+    dst_id = parse_dst_id(os.getenv("INTDASH_EDGE_DST_ID", ""))
+    return {"host":edge_host, "my_id":edge_id, "my_token": edge_token, "ctlr_id": ctlr_id, "dst_id": dst_id}
+
+def get_and_remove_secret(a, ret):
+    if (isinstance(a, dict)):
+        for key in a:
+            get_and_remove_secret(a[key], ret)
+            if (key == "host" or key == "my_id" or key == "my_token" or key == "ctlr_id" or key == "dst_id"):
+                ret[key] = a[key]
+                a[key] = ""
+    elif (isinstance(a, list)):
+        for item in a:
+            get_and_remove_secret(item, ret)
+
+def replace_secret(a, secret):
+    if (isinstance(a, dict)):
+        for key in a:
+            replace_secret(a[key], secret)
+            if (key == "host" or key == "my_id" or key == "my_token" or key == "ctlr_id" or key == "dst_id"):
+                a[key] = secret[key]
+    elif (isinstance(a, list)):
+        for item in a:
+            replace_secret(item, secret)
+
+def update_conf(conf_path, secret):
+    with open(conf_path) as f:
+        conf = json.load(f)
+    # update
+    replace_secret(conf, secret)
+    
+    with open(conf_path, 'w') as f:
+        json.dump(conf, f)
+
+
+def main(intdash_edge_path, manager_conf_file, intdash_working_dir, secret_name):
+
+    secret = None
+    if secret_name is None:
+        try:
+            secret = get_secret_from_environment_value()
+        except KeyError as e:
+            rospy.logerr(e)
+            rospy.logerr("Environment value {} is not found".format(e))
+            exit(1)
+    else:
+        secret = get_secret_from_aws_secrets_manager(secret_name)
+        if (secret is None):
+            # reuse manager conf
+            with open(intdash_working_dir + "/opt/vm2m/etc/" + manager_conf_file) as f:
+                working_dir_conf = json.load(f)
+            with open(intdash_edge_path +  "/opt/vm2m/etc/" + manager_conf_file) as f:
+                bundle_conf = json.load(f)
+
+            secret_in_working_dir = {}
+            get_and_remove_secret(working_dir_conf, secret_in_working_dir)
+            if (working_dir_conf != bundle_conf):
+                rospy.logerr("secret not found")
+            secret = secret_in_working_dir
+
+    try:
+        # copy all file to home/intdash
+        if not os.path.exists(intdash_working_dir):
+            os.makedirs(intdash_working_dir)
+            shutil.copytree(intdash_edge_path + "/opt", intdash_working_dir + "/opt")
+        else: 
+            path = glob.glob(intdash_edge_path+"/opt/vm2m")
+            
+            rospy.loginfo("copy from {}, to {}".format(intdash_edge_path + "/opt/vm2m/", intdash_working_dir+"/opt"))
+            files = [os.path.join(dp, f) for dp, dn, fn in os.walk(os.path.expanduser(intdash_edge_path + "/opt/vm2m")) for f in fn]
+            
+            for filepath in files:
+                cut_len = len(intdash_edge_path)
+                filename_from_opt = filepath[cut_len:] # e.g., /opt/vm2m/sbin/intdash-edge-manager
+                shutil.copy2(filepath, intdash_working_dir + filename_from_opt)
+    except Exception as e:
+        rospy.logerr("cp failed: {}".format(e))
+
+    try:
+        conf_path = intdash_working_dir +  "/opt/vm2m/etc/" + manager_conf_file
+
+        # write secret to conf
+        update_conf(conf_path, secret)
+
+        manager_path = intdash_working_dir + "/opt/vm2m/sbin/intdash-edge-manager"
+
+
+        cmd = "{} -C {}".format(manager_path, conf_path)
+        proc = Popen(cmd, shell=True)
+        r = rospy.Rate(1)
+        while not rospy.is_shutdown():
+            r.sleep()
+        proc.terminate()
+    except Exception as e:
+        rospy.logerr("error: {}".format(e))
+
+
+
+if __name__ == '__main__':
+    rospy.init_node('intdash_edge_wrapper', anonymous=True)
+    args = sys.argv
+    intdash_edge_path = args[1]
+    manager_conf_file = args[2]
+    intdash_working_dir = args[3]
+    secret_name = args[4] if (args[4][:8] != "__name:=") else None
+    main(intdash_edge_path, manager_conf_file, intdash_working_dir, secret_name)

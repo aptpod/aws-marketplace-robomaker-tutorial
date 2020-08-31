@@ -1,0 +1,6 @@
+<launch>
+    <arg name="scan_topic_name" default="scan"/>
+    <node pkg="scan_converter" type="scan_converter_node" name="scan_converter_node" output="screen">
+        <param name="scan_topic_name" value="$(arg scan_topic_name)"/>
+    </node>
+</launch>

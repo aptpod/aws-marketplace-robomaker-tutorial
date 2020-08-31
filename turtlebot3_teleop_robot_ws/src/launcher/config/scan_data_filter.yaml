@@ -1,0 +1,6 @@
+laser_filter/scan_filter_chain:
+
+- name: Remove over 4 meter
+  type: laser_filters/LaserScanRangeFilter
+  params:
+    upper_threshold: 4.0

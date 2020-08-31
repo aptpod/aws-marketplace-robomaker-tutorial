@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  IntdashRoboMakerSampleDeployS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: True
+        BlockPublicPolicy: True
+        IgnorePublicAcls: True
+        RestrictPublicBuckets: True
+  
+  IntdashRoboMakerSampleDeployRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: IntdashRoboMakerSampleDeployRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          -
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+                - greengrass.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: 'robomaker:UpdateRobotDeployment'
+                Resource: '*'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess'
+        - 'arn:aws:iam::aws:policy/SecretsManagerReadWrite'
+        - 'arn:aws:iam::aws:policy/service-role/AWSGreengrassResourceAccessRolePolicy'
+
+Outputs: 
+    IntdashRoboMakerSampleDeployS3BucketName:
+        Value: !Ref IntdashRoboMakerSampleDeployS3Bucket
+        
+    IntdashRoboMakerSampleDeployRoleName:
+        Value: !Ref IntdashRoboMakerSampleDeployRole

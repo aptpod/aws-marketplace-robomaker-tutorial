@@ -1,0 +1,6 @@
+[submodule "src/intdash_edge"]
+	path = src/intdash_edge
+	url = git@git.aptpod.co.jp:advanced/intdash_edge.git
+[submodule "src/intdash_edge_wrapper"]
+	path = src/intdash_edge_wrapper
+	url = git@git.aptpod.co.jp:advanced/intdash_edge_wrapper.git

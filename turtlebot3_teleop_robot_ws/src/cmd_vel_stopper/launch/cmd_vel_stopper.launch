@@ -1,0 +1,16 @@
+<launch>
+    <arg name="check_rate" default="5"/>
+    <arg name="fail_safe_threshold" default="0.2"/>
+    <arg name="is_om_with_tb3" default="0"/>
+
+    <group if="$(arg is_om_with_tb3)">
+        <node pkg="cmd_vel_stopper" type="cmd_vel_stopper" name="cmd_vel_stopper" output="screen" args="$(arg check_rate) $(arg fail_safe_threshold)">
+            <remap from="/cmd_vel" to="/om_with_tb3/cmd_vel"></remap>
+        </node>
+    </group>
+    <group unless="$(arg is_om_with_tb3)">
+        <node pkg="cmd_vel_stopper" type="cmd_vel_stopper" name="cmd_vel_stopper" output="screen" args="$(arg check_rate) $(arg fail_safe_threshold)">
+        </node>
+    </group>
+
+</launch>
