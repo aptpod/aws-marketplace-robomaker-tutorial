@@ -165,16 +165,6 @@ if __name__ == "__main__":
                             'INTDASH_EDGE_ROOT': '/home/robomaker/intdash',
                         },
                     }
-        elif (sys.argv[1] == "turtlebot3_intdash_bridge"):
-            mode = sys.argv[1]
-            launch_config = {
-                        'packageName': 'launcher',
-                        'launchFile': 'turtlebot3_simulation_intdash_bridge.launch',
-                        'environmentVariables': {
-                            'TURTLEBOT3_MODEL': 'waffle_pi',
-                            'INTDASH_EDGE_ROOT': '/home/robomaker/intdash',
-                        },
-                    }
         elif (sys.argv[1] == "rviz"):
             mode = "rviz"
         else:

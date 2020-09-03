@@ -8,5 +8,5 @@ outgoing:
   max_array_size: 500                # In JSON mode, skip arrays larger than this size (maps, images, etc.)
   topics:
   - topic_name: "/teleop/intdash_joy"           # ROS topic name for upstreaming
-    send_mode: "raw"                # "raw": use for downstream, "json": use for visualization, "both": use for downstream and visualization
+    send_mode: "both"                # "raw": use for downstream, "json": use for visualization, "both": use for downstream and visualization
     queue_size: 500                  # subscriber queue size
