@@ -5,15 +5,18 @@
 
     <include file="$(find intdash_edge_wrapper)/launch/intdash_edge_wrapper.launch">
         <arg name="intdash_edge_path" value="$(find intdash_edge_raspi)"/>
-        <arg name="manager_conf_file" value="manager.conf"/>
+        <arg name="manager_conf_file" value="$(arg manager_conf_file)"/>
         <arg name="intdash_working_dir" value="$(arg intdash_working_dir)"/>
         <arg name="aws_secrets_manager_secret_name" value="intdash-robomaker-sample-controller"/>
+    </include>
+
+    <include file="$(find intdash_bridge)/launch/intdash_bridge.launch">
+        <arg name="paramsfile" default="$(find launcher)/params/params.yaml" />
     </include>
 
     <node pkg="ps3joy" type="ps3joy.py" name="ps3joy_node" args="--continuous-output" output="screen">
     </node>
     <include file="$(find ps3joy_reader)/launch/ps3joy_reader.launch">
-        <arg name="fifo_path" value="$(arg intdash_working_dir)/opt/vm2m/var/run/intdash/logger_001.tx"/>
-        <arg name="use_custom_logger" value="true"></arg>
+        <arg name="use_custom_logger" value="false"></arg>
     </include>
 </launch>

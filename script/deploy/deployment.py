@@ -101,30 +101,6 @@ if __name__ == '__main__':
                             'TURTLEBOT3_MODEL' : 'waffle_pi'
                         }
                     }
-        elif (sys.argv[1] == "turtlebot3_intdash_bridge"):
-            fleet_name= "intdash_sample_robot_fleet"
-            robot_name = "IntdashSampleRobot"
-            robot_application_name = "intdash_sample_robot"
-            launchConfig = {
-                        'packageName': 'launcher',
-                        'launchFile': 'turtlebot3_raspi_intdash_bridge.launch',
-                        'environmentVariables': {
-                            'INTDASH_EDGE_ROOT': '/home/ggc_user/intdash',
-                            'TURTLEBOT3_MODEL' : 'waffle_pi'
-                        }
-                    }
-        elif (sys.argv[1] == "turtlebot3_rviz_intdash_bridge"):
-            fleet_name= "intdash_sample_robot_fleet"
-            robot_name = "IntdashSampleRobot"
-            robot_application_name = "intdash_sample_robot"
-            launchConfig = {
-                        'packageName': 'launcher',
-                        'launchFile': 'turtlebot3_raspi_rviz_intdash_bridge.launch',
-                        'environmentVariables': {
-                            'INTDASH_EDGE_ROOT': '/home/ggc_user/intdash',
-                            'TURTLEBOT3_MODEL' : 'waffle_pi'
-                        }
-                    }
         elif (sys.argv[1] == "turtlebot3_rviz"):
             fleet_name= "intdash_sample_robot_fleet"
             robot_name = "IntdashSampleRobot"
@@ -144,17 +120,6 @@ if __name__ == '__main__':
             launchConfig = {
                         'packageName': 'launcher',
                         'launchFile': 'controller.launch',
-                        'environmentVariables': {
-                            'INTDASH_EDGE_ROOT': '/home/ggc_user/intdash',
-                        }
-                    }
-        elif (sys.argv[1] == "controller_intdash_bridge"):
-            fleet_name= "intdash_sample_controller_fleet"
-            robot_name="IntdashSampleController"
-            robot_application_name = "intdash_sample_controller"
-            launchConfig = {
-                        'packageName': 'launcher',
-                        'launchFile': 'controller_intdash_bridge.launch',
                         'environmentVariables': {
                             'INTDASH_EDGE_ROOT': '/home/ggc_user/intdash',
                         }

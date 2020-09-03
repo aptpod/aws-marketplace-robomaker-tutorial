@@ -5,8 +5,22 @@ incoming:
 
 outgoing:
   enabled: true
+  advertise_interval: 5
+  buffering: true
   max_array_size: 400                # In JSON mode, skip arrays larger than this size (maps, images, etc.)
   topics:
+  - topic_name: "/battery_state"
+    send_mode: "json"
+    queue_size: 100
+  - topic_name: "/converted_scan"
+    send_mode: "json"
+    queue_size: 1000
+  - topic_name: "/odom_ori_yaw"
+    send_mode: "json"
+    queue_size: 100
+  - topic_name: "/scan_range_min"
+    send_mode: "json"
+    queue_size: 100
   - topic_name: "/odom"
     send_mode: "raw"
     queue_size: 100
