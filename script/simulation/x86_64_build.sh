@@ -5,7 +5,7 @@ sudo rm /opt/my.xenual.sources.list
 sudo cp /usr/local/lib/python3.5/dist-packages/colcon_bundle/installer/assets/xenial.sources.list /opt/my.xenual.sources.list
 cat > test.txt <<EOS
 # intdash_bridge
-deb https://intdash-edge:${BAUTHPASS}@private-repository.aptpod.jp/intdash-edge/linux/ubuntu xenial stable
+deb https://${BAUTHUSER}:${BAUTHPASS}@private-repository.aptpod.jp/intdash-edge/linux/ubuntu xenial stable
 EOS
 sudo sh -c "cat test.txt >> /opt/my.xenual.sources.list"
 rm test.txt
