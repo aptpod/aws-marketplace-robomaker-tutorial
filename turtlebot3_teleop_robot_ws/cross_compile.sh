@@ -16,11 +16,11 @@ DISTRO=raspbian
 sudo apt-get update
 sudo apt-get install -y apt-transport-https curl gnupg-agent lsb-release
 curl -s --compressed \
-  -u intdash-edge:${BAUTHPASS} \
+  -u ${BAUTHUSER}:${BAUTHPASS} \
   "https://private-repository.aptpod.jp/intdash-edge/linux/ubuntu/gpg" \
   | sudo apt-key add -
 echo "deb [arch=${ARCH}] \
-        https://intdash-edge:${BAUTHPASS}@private-repository.aptpod.jp/intdash-edge/linux/ubuntu \
+        https://${BAUTHUSER}:${BAUTHPASS}@private-repository.aptpod.jp/intdash-edge/linux/ubuntu \
         $(lsb_release -cs)  \
         stable" \
        | sudo tee /etc/apt/sources.list.d/intdash-edge.list
@@ -32,7 +32,7 @@ rosdep update
 
 cp apt-sources.yaml /opt/cross/apt-sources.yaml
 cp /opt/cross/apt-sources.yaml apt-sources.yaml
-echo -e "# intdash_bridge\ndeb https://intdash-edge:${BAUTHPASS}@private-repository.aptpod.jp/intdash-edge/linux/ubuntu xenial stable" >> /opt/cross/apt-sources.yaml
+echo -e "# intdash_bridge\ndeb https://${BAUTHUSER}:${BAUTHPASS}@private-repository.aptpod.jp/intdash-edge/linux/ubuntu xenial stable" >> /opt/cross/apt-sources.yaml
 
 apt update
 rosdep install --from-paths src --ignore-src -r -y
