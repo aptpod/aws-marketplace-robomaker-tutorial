@@ -14,6 +14,7 @@ for ws in ${workspaces[@]}; do
     echo Build and Bundle for $ws
     cd ../../$ws
     pwd
+    sudo rm -rf log/
     rosdep install --from-paths src --ignore-src -r -y
     colcon build --catkin-skip-building-tests
     colcon bundle --apt-sources-list /opt/my.xenual.sources.list
