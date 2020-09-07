@@ -31,6 +31,10 @@ echo "deb [arch=${ARCH}] \
         stable" \
        | sudo tee /etc/apt/sources.list.d/intdash-edge.list
 sudo apt-get update
+sudo apt install intdash-edge -y 
+sudo cp -r /opt/vm2m/* ./src/intdash_edge_raspi/opt/vm2m/
+sudo mkdir -p src/intdash_edge_raspi/opt/vm2m/var
+sudo cp /conf/* src/intdash_edge_raspi/opt/vm2m/etc
 
 echo "yaml file:///etc/ros/rosdep/sources.list.d/intdash_bridge.yaml" | sudo tee /etc/ros/rosdep/sources.list.d/90-intdash_bridge.list
 echo -e "intdash_bridge:\n  ubuntu:\n    xenial: [ros-kinetic-intdash-bridge]\n    bionic: [ros-melodic-intdash-bridge]" | sudo tee /etc/ros/rosdep/sources.list.d/intdash_bridge.yaml
