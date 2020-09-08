@@ -16,6 +16,7 @@ cd src/joystick_drivers
 git checkout ps3joy/scripts/ps3joy.py
 cd -
 patch src/joystick_drivers/ps3joy/scripts/ps3joy.py  < ps3joy.py.patch 
+cd -
 
 ARCH=armhf
 DISTRO=raspbian
