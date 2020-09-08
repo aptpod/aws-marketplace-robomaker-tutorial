@@ -26,16 +26,16 @@ echo "deb [arch=${ARCH}] \
        | sudo tee /etc/apt/sources.list.d/intdash-edge.list
 sudo apt-get update
 sudo apt install intdash-edge -y 
-sudo cp -r /opt/vm2m/* ./src/intdash_edge_raspi/opt/vm2m/
-sudo mkdir -p src/intdash_edge_raspi/opt/vm2m/var
-sudo cp /conf/* src/intdash_edge_raspi/opt/vm2m/etc
+sudo cp -r /opt/vm2m/* /ws/src/intdash_edge_raspi/opt/vm2m/
+sudo mkdir -p /ws/src/intdash_edge_raspi/opt/vm2m/var
+sudo cp /conf/* /ws/src/intdash_edge_raspi/opt/vm2m/etc
 
-mkdir -p src/intdash_edge/opt/vm2m/bin \
-         src/intdash_edge/opt/vm2m/etc \
-         src/intdash_edge/opt/vm2m/lib \
-         src/intdash_edge/opt/vm2m/sbin \
-         src/intdash_edge/opt/vm2m/share \
-         src/intdash_edge/opt/vm2m/var
+mkdir -p /ws/src/intdash_edge/opt/vm2m/bin \
+         /ws/src/intdash_edge/opt/vm2m/etc \
+         /ws/src/intdash_edge/opt/vm2m/lib \
+         /ws/src/intdash_edge/opt/vm2m/sbin \
+         /ws/src/intdash_edge/opt/vm2m/share \
+         /ws/src/intdash_edge/opt/vm2m/var
 
 echo "yaml file:///etc/ros/rosdep/sources.list.d/intdash_bridge.yaml" | sudo tee /etc/ros/rosdep/sources.list.d/90-intdash_bridge.list
 echo -e "intdash_bridge:\n  ubuntu:\n    xenial: [ros-kinetic-intdash-bridge]\n    bionic: [ros-melodic-intdash-bridge]" | sudo tee /etc/ros/rosdep/sources.list.d/intdash_bridge.yaml
