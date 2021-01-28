@@ -3,31 +3,17 @@
   <arg name="fail_safe_threshold" value="$(optenv FAIL_SAFE_THRESHOLD 0.2)"/>
   <arg name="manager_conf" value="$(optenv MANAGER_CONF manager.conf)"/>
   <arg name="intdash_working_dir" default="/home/ggc_user/intdash"/>
+  <arg name="intdash_bridge_params" default="$(find launcher)/params/params_turtlebot3_raspi.yaml" />
 
-  <include file="$(find launcher)/launch/turtlebot3_serial_server.launch">
-    <arg name="multi_robot_name" value=""/>
-    <arg name="set_lidar_frame_id" value="/base_scan"/>
-  </include>
-
-
-  <include file="$(find converter)/launch/converter.launch">
-    <arg name="basetime_path" value="$(arg intdash_working_dir)/opt/vm2m/var/run/intdash/basetime"/>
-    <arg name="basetime_lib_path" value="$(arg intdash_working_dir)/opt/vm2m/lib/libbasetime.so"/>
-    <arg name="fifo_path" value="$(arg intdash_working_dir)/opt/vm2m/var/run/intdash/logger_005.tx"/>
-    <arg name="scan_topic_name" value="scan_filtered"/>
-  </include>
-
-  <include file="$(find teleop_reader_cpp)/launch/teleop_reader_cpp_node.launch">
-    <arg name="fifo_path" value="$(arg intdash_working_dir)/opt/vm2m/var/run/intdash/logger_001.rx"/>
+  <include file="$(find turtlebot3_bringup)/launch/turtlebot3_robot.launch">
+    <arg name="multi_robot_name" default=""/>
+    <arg name="set_lidar_frame_id" default="/base_scan"/>
   </include>
 
   <!-- activate teleop_twist_joy -->
   <node pkg="teleop_twist_joy" name="teleop_twist_joy" type="teleop_node">
     <remap from="joy" to="/teleop/intdash_joy"/>
     <rosparam command="load" file="$(find launcher)/config/ps3.config.yaml" />
-  </node>
-  <node pkg="teleop_arm_node" name="teleop_arm_node" type="teleop_arm_node">
-    <param name="control_mode" value="$(optenv CONTROL_MODE JOY)" />
   </node>
 
   <!-- intdash edge wrapper for raspi -->
@@ -53,8 +39,26 @@
   </node>
   <rosparam command="load" file="$(find launcher)/config/scan_data_filter.yaml" />
 
+  <include file="$(find scan_converter)/launch/scan_converter.launch">
+        <arg name="scan_topic_name" value="scan_filtered"/>
+  </include>
+
   <include file="$(find cmd_vel_stopper)/launch/cmd_vel_stopper.launch">
     <arg name="is_om_with_tb3" value="0"/>
     <arg name="fail_safe_threshold" value="$(arg fail_safe_threshold)"/>
   </include>
+    <include file="$(find intdash_bridge)/launch/intdash_bridge.launch">
+    <arg name="paramsfile" value="$(arg intdash_bridge_params)" />
+  </include>
+  <include file="$(find odom_converter)/launch/odom_converter.launch">
+  </include>
+
+  
+  <include file="$(find teleop_reader_cpp)/launch/teleop_reader_cpp_node.launch">
+    <arg name="fifo_path" value="$(arg intdash_working_dir)/opt/vm2m/var/run/intdash/logger_001.rx"/>
+  </include>
+
+  <node pkg="teleop_arm_node" name="teleop_arm_node" type="teleop_arm_node">
+    <param name="control_mode" value="$(optenv CONTROL_MODE JOY)" />
+  </node>
 </launch>
