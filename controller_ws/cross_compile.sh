@@ -21,12 +21,10 @@ ARCH=armhf
 DISTRO=raspbian
 sudo apt-get update
 sudo apt-get install -y apt-transport-https curl gnupg-agent lsb-release
-curl -s --compressed \
-  -u ${BAUTHUSER}:${BAUTHPASS} \
-  "https://private-repository.aptpod.jp/intdash-edge/linux/ubuntu/gpg" \
+curl -s --compressed ${URL}/intdash-edge/linux/ubuntu/gpg \
   | sudo apt-key add -
 echo "deb [arch=${ARCH}] \
-        https://${BAUTHUSER}:${BAUTHPASS}@private-repository.aptpod.jp/intdash-edge/linux/ubuntu \
+        ${URL}/intdash-edge/linux/ubuntu \
         $(lsb_release -cs)  \
         stable" \
        | sudo tee /etc/apt/sources.list.d/intdash-edge.list
@@ -38,13 +36,17 @@ sudo mkdir -p /ws/src/intdash_edge_raspi/opt/vm2m/etc
 sudo cp /conf/manager.conf /ws/src/intdash_edge_raspi/opt/vm2m/etc/
 
 echo "yaml file:///etc/ros/rosdep/sources.list.d/intdash_bridge.yaml" | sudo tee /etc/ros/rosdep/sources.list.d/90-intdash_bridge.list
-echo -e "intdash_bridge:\n  ubuntu:\n    xenial: [ros-kinetic-intdash-bridge]\n    bionic: [ros-melodic-intdash-bridge]" | sudo tee /etc/ros/rosdep/sources.list.d/intdash_bridge.yaml
+UBUNTU_CODENAME=`cat /etc/os-release | grep VERSION_CODENAME| cut -f 2 -d '='`
+echo -e "intdash_bridge:\n  ubuntu:\n    ${UBUNTU_CODENAME}: [ros-${ROS_DISTRO}-intdash-bridge]\n" | sudo tee /etc/ros/rosdep/sources.list.d/intdash_bridge.yaml
 rosdep update
 
 cp apt-sources.yaml /opt/cross/apt-sources.yaml
 cp /opt/cross/apt-sources.yaml apt-sources.yaml
-echo -e "# intdash_bridge\ndeb https://${BAUTHUSER}:${BAUTHPASS}@private-repository.aptpod.jp/intdash-edge/linux/ubuntu xenial stable" >> /opt/cross/apt-sources.yaml
+echo -e "# intdash_bridge\ndeb ${URL}/intdash-edge/linux/ubuntu ${UBUNTU_CODENAME} stable" >> /opt/cross/apt-sources.yaml
 
+NG_LIST_PATH=`find /usr/local/lib/python* -name apt_package_blacklist.txt`
+cp ${NG_LIST_PATH} nglist
+echo -e "sudo" >> nglist
 
 apt update
 rosdep update

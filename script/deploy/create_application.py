@@ -1,4 +1,5 @@
 import boto3
+import os
 import sys
 
 from logging import getLogger, StreamHandler, DEBUG
@@ -14,6 +15,9 @@ s3 = boto3.resource('s3')
 
 cloudformation = boto3.resource('cloudformation')
 stack = cloudformation.Stack('intdash-robomaker-sample-deploy')
+
+def get_ros_distro():
+    return os.environ['ROS_DISTRO'].capitalize()
 
 def get_robot_application_arn(name):
     try:
@@ -67,7 +71,7 @@ def create_robot_application(name, s3Bucket, s3Key):
                 sources=sources,
                 robotSoftwareSuite={
                     'name': 'ROS',
-                    'version': 'Kinetic'
+                    'version': get_ros_distro()
                 }
             )
     except client.exceptions.ResourceAlreadyExistsException:
@@ -81,7 +85,7 @@ def create_robot_application(name, s3Bucket, s3Key):
             sources=sources,
             robotSoftwareSuite={
                 'name': 'ROS',
-                'version': 'Kinetic'
+                'version': get_ros_distro()
             }
         )
     except Exception as e:
