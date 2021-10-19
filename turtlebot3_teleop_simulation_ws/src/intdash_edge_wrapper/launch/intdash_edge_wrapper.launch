@@ -1,5 +1,5 @@
 <launch>
-  <arg name="intdash_edge_path" default="$(find intdash_edge)"/>
+  <arg name="intdash_edge_path" default=""/>
   <arg name="manager_conf_file" default="manager.conf"/>
   <arg name="intdash_working_dir" default="$(optenv HOME ggc_user)/intdash"/>
   <arg name="aws_secrets_manager_secret_name" default=""/>

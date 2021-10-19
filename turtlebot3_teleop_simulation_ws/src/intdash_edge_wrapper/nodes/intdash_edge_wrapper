@@ -46,17 +46,16 @@ def parse_dst_id(dst_id_string):
 def get_secret_from_environment_value():
     edge_host =  os.environ['INTDASH_EDGE_HOST']
     edge_id =    os.environ['INTDASH_EDGE_ID']
-    edge_token = os.environ['INTDASH_EDGE_TOKEN']
+    edge_secret = os.environ['INTDASH_EDGE_SECRET']
     ctlr_id = os.getenv("INTDASH_EDGE_CTLR_ID", "")
     dst_id = parse_dst_id(os.getenv("INTDASH_EDGE_DST_ID", ""))
-    return {"host":edge_host, "my_id":edge_id, "my_token": edge_token, "ctlr_id": ctlr_id, "dst_id": dst_id}
+    return {"host":edge_host, "my_id":edge_id, "my_secret": edge_secret, "ctlr_id": ctlr_id, "dst_id": dst_id}
 
 def get_and_remove_secret(a, ret):
-    print(a)
     if (isinstance(a, dict)):
         for key in a:
             get_and_remove_secret(a[key], ret)
-            if (key == "host" or key == "my_id" or key == "my_token" or key == "ctlr_id" or key == "dst_id"):
+            if (key == "host" or key == "my_id" or key == "my_secret" or key == "ctlr_id" or key == "dst_id"):
                 ret[key] = a[key]
                 a[key] = ""
     elif (isinstance(a, list)):
@@ -67,7 +66,7 @@ def replace_secret(a, secret):
     if (isinstance(a, dict)):
         for key in a:
             replace_secret(a[key], secret)
-            if (key == "host" or key == "my_id" or key == "my_token" or key == "ctlr_id" or key == "dst_id"):
+            if (key == "host" or key == "my_id" or key == "my_secret" or key == "ctlr_id" or key == "dst_id"):
                 a[key] = secret[key]
     elif (isinstance(a, list)):
         for item in a:
@@ -97,7 +96,6 @@ def main(intdash_edge_path, manager_conf_file, intdash_working_dir, secret_name)
         secret = get_secret_from_aws_secrets_manager(secret_name)
         if (secret is None):
             # reuse manager conf
-            rospy.loginfo("secrets not found. reuse existing secrets")
             with open(intdash_working_dir + "/opt/vm2m/etc/" + manager_conf_file) as f:
                 working_dir_conf = json.load(f)
             with open(intdash_edge_path +  "/opt/vm2m/etc/" + manager_conf_file) as f:
@@ -105,21 +103,16 @@ def main(intdash_edge_path, manager_conf_file, intdash_working_dir, secret_name)
 
             secret_in_working_dir = {}
             get_and_remove_secret(working_dir_conf, secret_in_working_dir)
-            if (working_dir_conf != bundle_conf):
-                rospy.logerr("secret not found")
+            if (secret_in_working_dir == {}):
                 exit(1)
             secret = secret_in_working_dir
 
     try:
-        rospy.loginfo("intdash_working_dir: {}".format(intdash_working_dir))
         # copy all file to home/intdash
         if not os.path.exists(intdash_working_dir):
-            rospy.loginfo("Make dir {}".format(intdash_working_dir))
             os.makedirs(intdash_working_dir)
-            rospy.loginfo("copy tree: {}/opt".format(intdash_working_dir))
             shutil.copytree(intdash_edge_path + "/opt", intdash_working_dir + "/opt")
         else: 
-            rospy.loginfo("intdash_edge_path: {}".format(intdash_edge_path))
             path = glob.glob(intdash_edge_path+"/opt/vm2m")
             
             rospy.loginfo("copy from {}, to {}".format(intdash_edge_path + "/opt/vm2m/", intdash_working_dir+"/opt"))
@@ -140,8 +133,6 @@ def main(intdash_edge_path, manager_conf_file, intdash_working_dir, secret_name)
 
         manager_path = intdash_working_dir + "/opt/vm2m/sbin/intdash-edge-manager"
 
-        rospy.loginfo("conf path: {}".format(conf_path))
-        rospy.loginfo("INTDASH_EDGE_CONFDIR: {}".format(os.environ["INTDASH_EDGE_CONFDIR"]))
 
         cmd = "{} -C {}".format(manager_path, conf_path)
         proc = Popen(cmd, shell=True)
