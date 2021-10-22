@@ -55,7 +55,7 @@ def register_secrets(file_name):
         if (secret["host"] == ""):
             delete_secret(secret["secrets_name"])
         else:
-            secret_to_register = {"host":secret["host"], "my_id":secret["my_id"], "my_token":secret["my_token"]}
+            secret_to_register = {"host":secret["host"], "my_id":secret["my_id"], "my_secret":secret["my_secret"]}
             if ("ctlr_id" in secret):
                 secret_to_register["ctlr_id"] = secret["ctlr_id"]
             if ("dst_id" in secret):

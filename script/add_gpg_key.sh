@@ -11,7 +11,7 @@ if [ -z ${ARCH} ]; then
 fi
 
 sudo apt-get update
-sudo apt-get install -y apt-transport-https curl gnupg-agent lsb-release
+sudo apt-get install -y apt-transport-https ca-certificates curl gnupg-agent lsb-release
 curl -s --compressed ${URL}/intdash-edge/linux/${DISTRO}/gpg \
   | sudo apt-key add -
 echo "deb [arch=${ARCH}] \
